@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <script src="./js/go.js"></script>
     <script>
-        var rps=[
+        var rps = [
             [
                 {
                     key: "001",
@@ -208,37 +208,42 @@
                             MAKE("Panel",
                                     {width: 12, height: 12},
                                     MAKE(go.Picture,
-                                            {width: 12, height: 12,source:"./images/button.png"}),
+                                            {width: 12, height: 12, source: "./images/button.png"},
+                                             new go.Binding("visible", "isTreeLeaf",
+                                                    function (leaf) {
+                                                        return !leaf;
+                                                    })
+                                                    .ofObject()),
                                     MAKE(go.Panel, "Table",
-                                    {visible: false,desiredSize: new go.Size(12, 12)},
-                                    //绑定自定义数据
-                                    new go.Binding("visible", "isTreeLeaf",
-                                            function (leaf) {
-                                                return !leaf;
-                                            })
-                                            .ofObject(),
-                                    MAKE(go.Shape,
+                                            {visible: false, desiredSize: new go.Size(12, 12)},
+                                            //绑定自定义数据
+                                            new go.Binding("visible", "isTreeLeaf",
+                                                    function (leaf) {
+                                                        return !leaf;
+                                                    })
+                                                    .ofObject(),
+                                            MAKE(go.Shape,
+                                                    {
+                                                        name: "ButtonIcon",
+                                                        figure: "MinusLine",//自动生成几何图形 这里生成“-”
+                                                        desiredSize: new go.Size(7, 7)//尺寸
+                                                    },
+                                                    new go.Binding("figure", "isCollapsed",// 根据collapsed函数的返回值设置图形是“+”还是“-”
+                                                            function (collapsed) {
+                                                                return collapsed ? "PlusLine" : "MinusLine";
+                                                            })),
                                             {
-                                                name: "ButtonIcon",
-                                                figure: "MinusLine",//自动生成几何图形 这里生成“-”
-                                                desiredSize: new go.Size(7, 7)//尺寸
-                                            },
-                                            new go.Binding("figure", "isCollapsed",// 根据collapsed函数的返回值设置图形是“+”还是“-”
-                                                    function (collapsed) {
-                                                        return collapsed ? "PlusLine" : "MinusLine";
-                                                    })),
-                                    {
-                                        click: function (e, obj) {
-                                            e.diagram.startTransaction();
-                                            var node = obj.part;
-                                            if (node.data.isCollapsed) {
-                                                expandFrom(node, node);
-                                            } else {
-                                                collapseFrom(node, node);
+                                                click: function (e, obj) {
+                                                    e.diagram.startTransaction();
+                                                    var node = obj.part;
+                                                    if (node.data.isCollapsed) {
+                                                        expandFrom(node, node);
+                                                    } else {
+                                                        collapseFrom(node, node);
+                                                    }
+                                                    e.diagram.commitTransaction("toggled visibility of dependencies");
+                                                }
                                             }
-                                            e.diagram.commitTransaction("toggled visibility of dependencies");
-                                        }
-                                    }
                                     )
                             )
                     );
@@ -249,6 +254,7 @@
                 if (node !== start) node.visible = false;
                 node.findNodesOutOf().each(collapseFrom);
             }
+
             //展开
             function expandFrom(node, start) {
                 if (!node.data.isCollapsed) return;
@@ -256,8 +262,9 @@
                 if (node !== start) node.visible = true;
                 node.findNodesOutOf().each(expandFrom);
             }
+
             //数据
-            myDiagram.model = new go.GraphLinksModel(rps[0],rps[1]);
+            myDiagram.model = new go.GraphLinksModel(rps[0], rps[1]);
             //绑定元素点击事件
             myDiagram.addDiagramListener("ObjectSingleClicked",
                     function (e) {
@@ -267,7 +274,7 @@
                         }
                     });
         }
-        window.onload=function(){
+        window.onload = function () {
             init(rps);
         }
     </script>
